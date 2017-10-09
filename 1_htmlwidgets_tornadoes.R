@@ -12,10 +12,9 @@
 #Torn1 <- as_tibble(Torn)
 #Torn1 %>% write_csv('Torn.csv')
 
-Torn <- read_csv("/home/phil/Deere/data/torn/Torn.csv")
+Torn <- read_csv("/home/phil/Foundation-of-the-R-Workflow-workshop-2017-10-08/data/torn/Torn.csv")
 
-Torn1 <- Torn[ which(Torn$st=='IL' | Torn$st=='IA'
-                               & Torn$yr== 2016), ]
+Torn1 <- Torn[ which((Torn$st=='IL' | Torn$st=='IA') & Torn$yr== 2016), ]
 
 View(Torn1)
 
