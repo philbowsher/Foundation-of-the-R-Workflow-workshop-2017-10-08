@@ -1,0 +1,121 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+packages
+```{r}
+library(tidyverse)
+library(leaflet)
+library(magrittr)
+library(stringr)
+```
+
+Read in data
+```{r}
+download.file("https://opendata.socrata.com/api/views/ddym-zvjk/rows.csv?accessType=DOWNLOAD",destfile="data.csv",method="libcurl")
+
+# Base R
+# starbucks1 <- read.csv("data.csv")
+
+# readr
+starbucks <- read_csv("data.csv")
+
+# rename(starbucks, `StoreNumber` =  `Store Number` )
+
+#Make State a factor for later on
+starbucks$State.f <- factor(starbucks$State)
+is.factor(starbucks$State.f)
+
+class(starbucks)
+
+#View(starbucks2)
+
+starbucks
+
+
+```
+
+Let's now subset it for IL & IA
+```{r}
+
+# Base R
+# starbucks <- starbucks1[ which(starbucks1$State=='VA' & starbucks1$Country== 'US'), ]
+
+# Dplyr
+# Without pipes
+# starbucks_PA <- filter(starbucks, Country== 'US', State=='VA')
+
+starbucks_IL_IA <- starbucks %>%
+  filter(Country== 'US', State=='IL' | State=='IA')%>% 
+  select(Brand, `Store Number`, `Ownership Type`, City,	State,	Zip, Country, Coordinates,	Latitude,	Longitude, Name)
+
+```
+
+```{r}
+
+leaflet() %>% addTiles() %>% setView(-90.424373, 41.476831, zoom = 12) %>% 
+              
+addMarkers(data = starbucks_IL_IA, lat = ~ Latitude, lng = ~ Longitude, popup = starbucks_IL_IA$Name) %>%
+  addPopups(-90.424373, 41.476831, 'the <b> spot</b>')
+
+```
+
+```{r}
+# Base R
+# starbucks1 <- read.csv("data.csv")
+
+# Dplyr
+starbucks_R_C_P <- read_csv("data/starbucks_R_C_P.csv")
+
+# rename(starbucks_R_C_P, StoreNumber = `Store Number`)
+
+class(starbucks_R_C_P)
+
+#View(starbucks2)
+
+```
+Excel
+```{r}
+starbucks_IL_IA_R_C_P <- starbucks_IL_IA %>%
+  left_join(starbucks_R_C_P, by = 'Store Number')
+
+#rename(starbucks_R_C_P, StoreNumber = `Store Number`)
+
+#starbucks_MO_R_C_P$`Ownership Type.f` <- #factor(starbucks_MO_R_C_P$`Ownership Type`)
+#is.factor(starbucks_MO_R_C_P$`Ownership Type.f`)
+
+starbucks_IL_IA_R_C_P
+
+```
+
+
+
+```{r}
+ggplot(data = starbucks_IL_IA_R_C_P) +
+  geom_bar(mapping = aes(x = `Ownership Type`))
+```
+
+
+```{r}
+
+ggplot(data = starbucks) +
+  geom_bar(mapping = aes(x = `State`))
+```
+
+```{r}
+
+options(scipen=10000)
+
+ggplot(starbucks_IL_IA_R_C_P, aes(P)) + 
+  geom_histogram()
+
+```
+
+```{r}
+
+options(scipen=10000)
+
+ggplot(starbucks_IL_IA_R_C_P, aes(x=C, y=`Ownership Type`)) + geom_point()
+
+```
